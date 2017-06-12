@@ -65,6 +65,9 @@ for p in photosList:
 				x_train[counter] = inputFoto[i-2:i+3,j-2:j+3,:]
 				if outputFoto[i][j][0] > 0 or outputFoto[i][j][1] > 0 or outputFoto[i][j][2] > 0:
 					y_train[counter]=1
+					for k in range(10):
+						x_train = x_train.append(inputFoto[i-2:i+3,j-2:j+3,:])
+						y_train = y_train.append(1)
 				else:
 					y_train[counter]=0
 				counter+=1
