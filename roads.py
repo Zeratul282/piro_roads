@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-'
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
@@ -9,8 +10,8 @@ import numpy as np
 import cv2
 import os
 
-FOLDERPHOTOS = "photos"
-FOLDERETIQUETES = "etiquetes"
+FOLDERPHOTOS = "mass_roads/train/sat"
+FOLDERETIQUETES = "mass_roads/train/map"
 
 inputFoto = cv2.imread("10078660_15.tiff")
 outputFoto = cv2.imread("10078660_15.tif")
@@ -54,30 +55,53 @@ counter2 = 0
 for p in photosList:
 	if str(p).endswith(".tiff"):
 		counter2+=1
-		x_train = np.empty(((orig_rows-4)*(orig_cols-4), 5, 5, 3), dtype=np.object_)
-		y_train = np.empty((orig_rows-4)*(orig_cols-4))
+		x_train = np.zeros(((orig_rows-4)*(orig_cols-4), 5, 5, 3), dtype=np.object_)
+		y_train = np.zeros((orig_rows-4)*(orig_cols-4))
+		x_train_positives = []
+		y_train_positives = []
 		counter=0
 		inputFoto = cv2.imread(FOLDERPHOTOS + "/" + p)
 		outputFoto = cv2.imread(FOLDERETIQUETES + "/" + p[:-1])
 
+		#print("x_train last " + str(x_train[len(x_train) -1]))
+		#print("photo " + str(p))
 		for i in range (2, orig_rows-2):
 			for j in range(2, orig_cols - 2):
-				x_train[counter] = inputFoto[i-2:i+3,j-2:j+3,:]
+				fragment = inputFoto[i-2:i+3,j-2:j+3,:]
+				#print("fragment " + str(fragment))
+				x_train[counter] = fragment
 				if outputFoto[i][j][0] > 0 or outputFoto[i][j][1] > 0 or outputFoto[i][j][2] > 0:
+					#print("i j >0 " + str(i) + " " + str(j))
 					y_train[counter]=1
+					#x_train = np.append(x_train, np.tile(fragment, 10), axis=0)
+					#y_train = np.append(y_train, np.tile(1, 10), axis=0)
+					#print("x " + str(x_train_positives))
+					#x_train_positives = x_train_positives.append(np.tile(fragment, 10))
+					#y_train_positives = y_train_positives.append(np.tile(1, 10))
 					for k in range(10):
-						x_train = x_train.append(inputFoto[i-2:i+3,j-2:j+3,:])
-						y_train = y_train.append(1)
-				else:
-					y_train[counter]=0
+						#print("k " + str(k))
+						#x_train = np.append(x_train, [fragment], axis=0)
+						#y_train = np.append(y_train, [1], axis=0)
+						x_train_positives.append(fragment)
+						y_train_positives.append(1)
+					#print("x_train last " + str(x_train[len(x_train) -1]))
+				#else:
+				#	y_train[counter]=0 #niepotrzebne bo tablica zainicjalizowana zerami
 				counter+=1
 		#x_train = x_train.astype('float32')
 		#x_train /= 255
+
+		#print("after for " + str(p))
+
+		x_train = np.append(x_train, x_train_positives, axis=0)
+		y_train = np.append(y_train, y_train_positives, axis=0)
 
 		x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, colors)
 		#x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 
 		y_train = keras.utils.to_categorical(y_train, num_classes)
+
+		#print("before fit " + str(p))
 
 		model.fit(x_train, y_train,
           	batch_size=batch_size,
