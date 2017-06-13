@@ -108,7 +108,8 @@ for p in photosList:
           	epochs=epochs,
           	verbose=1)
 
-		if counter2 > 100:
+		model.save("model_" + str(counter2) + ".h5")
+		if counter2 > 50:
 			break
 
 model.save("model.h5")
