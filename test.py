@@ -16,12 +16,10 @@ def roads(image):
 
 	for i in range (2, orig_rows - 2):
 		for j in range(2, orig_cols - 2):
-#	for i in range (2, 8):
-#		for j in range(2, 8):
 			temp = np.empty((1, img_rows, img_cols, colors))
 			temp[0] = inputFoto[i-2:i+3,j-2:j+3,:]
 
-			temp = temp.reshape(temp.shape[0], img_rows, img_cols, colors)
+			# temp = temp.reshape(temp.shape[0], img_rows, img_cols, colors)
 
 			prediction = model.predict(temp, batch_size=1, verbose=1)
 
